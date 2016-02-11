@@ -160,15 +160,14 @@ class RunLoad(Command):
             options.columns = [x.strip() for x in options.columns.split(",")]
 
         if options.dynamic_columns:
-            options.columns = [x.strip() for x in options.columns.split(",")]
+            #options.columns = [x.strip() for x in options.columns.split(",")]
             #TODO read in the first header line instead
-            header_columns = options.columns
+            #header_columns = options.columns
             with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
-            db_columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table):
-            if not db_columns
+            options.columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table):
+            if not options.columns
                 self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
-                sys.exit(1)            
-            options.columns = list(set(header_columns).interesection(db_columns))
+                sys.exit(1)
 
         if options.dup_ignore:
             options.duplicate_key_method = 'ignore'
