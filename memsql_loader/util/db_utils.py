@@ -32,3 +32,7 @@ def try_kill_connection(conn, conn_id):
     except pool.MySQLError as (errno, _):
         if errno != errorcodes.ER_NO_SUCH_THREAD:
             raise
+
+def get_column_names(conn, database, table):
+    return conn.get("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s",
+        database, table)
