@@ -108,6 +108,7 @@ class RunLoad(Command):
         dup_group.add_argument('--dup-replace', '--replace', default=False, action='store_true', help='Replace rows in the database that have a unique key conflict with a row being inserted.')
 
         load_data_options.add_argument('--columns', type=str, default=None, help="List of columns to load into")
+        load_data_options.add_argument('--dynamic_columns', default=False, help="csv must have header columns that get intersected with what's in the db")
         load_data_options.add_argument('--file-id-column', type=str, default=None,
             help="An optional column that memsql-loader uses to save a per-file id on the row. This can"
             "be used by the loader to transactionally reload files.")
@@ -157,6 +158,17 @@ class RunLoad(Command):
         if options.columns:
             # UNDONE: does this need to be more sophisticated?
             options.columns = [x.strip() for x in options.columns.split(",")]
+
+        if options.dynamic_columns:
+            options.columns = [x.strip() for x in options.columns.split(",")]
+            #TODO read in the first header line instead
+            header_columns = options.columns
+            with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
+            db_columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table):
+            if not db_columns
+                self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
+                sys.exit(1)            
+            options.columns = list(set(header_columns).interesection(db_columns))
 
         if options.dup_ignore:
             options.duplicate_key_method = 'ignore'
