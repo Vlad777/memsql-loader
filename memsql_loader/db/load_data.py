@@ -83,7 +83,7 @@ class LoadDataStmt(object):
     def _generate_columns(self, query_params):
         if len(self.job.spec.options.columns) > 0:
             columns = self.job.spec.options.columns
-            return "(%s)" % ', '.join([("%s" if column == "@" else "`%s`") % column for column in columns])
+            return "(%s)" % ', '.join(("%s" if column == "@" else "`%s`") % column for column in columns)
 
     def _generate_file_id(self, query_params):
         if self.job.has_file_id():
