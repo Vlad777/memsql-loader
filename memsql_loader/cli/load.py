@@ -315,7 +315,7 @@ Invalid command line options for load:
             #TODO read in the first header line instead
             #header_columns = options.columns
             with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
-                self.options.columns = db_utils.get_column_names(conn, self.job.spec.target.database, self.job.spec.target.table)
+                self.job.spec.options.columns = db_utils.get_column_names(conn, self.job.spec.target.database, self.job.spec.target.table)
                 if not self.options.columns:
                     self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
                     sys.exit(1)
