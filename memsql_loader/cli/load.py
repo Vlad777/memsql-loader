@@ -146,7 +146,7 @@ class RunLoad(Command):
             bootstrap.bootstrap()
 
     @staticmethod
-    def pre_process_options(s, options, logger):
+    def pre_process_options(options, logger):
         # Pre-process some options before sending it to the schema builder
         #   1) columns need to be parsed into a list
         #   2) duplicate_key_method needs to be fixed
@@ -158,16 +158,6 @@ class RunLoad(Command):
         if options.columns:
             # UNDONE: does this need to be more sophisticated?
             options.columns = [x.strip() for x in options.columns.split(",")]
-
-        if options.dynamic_columns:
-            #options.columns = [x.strip() for x in options.columns.split(",")]
-            #TODO read in the first header line instead
-            #header_columns = options.columns
-            with pool.get_connection(database='INFORMATION_SCHEMA', **s.job.spec.connection) as conn:
-                options.columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table)
-                if not options.columns:
-                    self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
-                    sys.exit(1)
 
         if options.dup_ignore:
             options.duplicate_key_method = 'ignore'
@@ -207,7 +197,7 @@ class RunLoad(Command):
         else:
             base_spec = {}
 
-        self.pre_process_options(self, self.options, self.logger)
+        self.pre_process_options(self.options, self.logger)
 
         if self.options.password == _PasswordNotSpecified:
             password = getpass.getpass('Enter password: ')
@@ -319,6 +309,16 @@ Invalid command line options for load:
             if not db_utils.validate_file_id_column(conn, self.job.spec.target.database, self.job.spec.target.table, file_id_col):
                 self.logger.error("The `file_id_column` specified (%s) must exist in the table and be of type BIGINT UNSIGNED", file_id_col)
                 sys.exit(1)
+
+        if self.options.dynamic_columns:
+            #options.columns = [x.strip() for x in options.columns.split(",")]
+            #TODO read in the first header line instead
+            #header_columns = options.columns
+            with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
+                self.options.columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table)
+                if not self.options.columns:
+                    self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
+                    sys.exit(1)
 
     def validate_path_conditions(self, path):
         if path.scheme == 's3':
