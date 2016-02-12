@@ -108,7 +108,7 @@ class RunLoad(Command):
         dup_group.add_argument('--dup-replace', '--replace', default=False, action='store_true', help='Replace rows in the database that have a unique key conflict with a row being inserted.')
 
         load_data_options.add_argument('--columns', type=str, default=None, help="List of columns to load into")
-        load_data_options.add_argument('--dynamic-columns', default=False, help="csv must have header columns that get intersected with what's in the db")
+        load_data_options.add_argument('--dynamic-columns', default=None, action='store_true', help="use first line from header as columns, cross-referencing with table schema")
         load_data_options.add_argument('--file-id-column', type=str, default=None,
             help="An optional column that memsql-loader uses to save a per-file id on the row. This can"
             "be used by the loader to transactionally reload files.")
