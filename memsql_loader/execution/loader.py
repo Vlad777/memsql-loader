@@ -15,6 +15,7 @@ class Loader(Thread):
         self._conn = db_connection
         load_data = LoadDataStmt(job, task.file_id, fifo.path)
         self._sql, self._params = load_data.build()
+        self.logger.debug("Generated sql:\n%s\n%s", self._sql, self._params)
         self._error = None
         self._tb = None
 
