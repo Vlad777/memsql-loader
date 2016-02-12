@@ -34,5 +34,9 @@ def try_kill_connection(conn, conn_id):
             raise
 
 def get_column_names(conn, database, table):
-    return conn.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s",
+    res = conn.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s",
         database, table)
+    column_names = list()
+    for row in column_names:
+        column_names.append(row.get("COLUMN_NAME"))
+    return column_names
