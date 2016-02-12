@@ -70,7 +70,8 @@ def get_spec_validator():
         V.Required("file_id_column", default=None): V.Any(basestring, None),
         V.Required("non_local_load", default=False): bool,
         V.Required("duplicate_key_method", default="error"): V.Any("error", "replace", "ignore"),
-        V.Required("script", default=None): V.Any(basestring, None)
+        V.Required("script", default=None): V.Any(basestring, None),
+        V.Required("dynamic_columns", default=False): bool
     })
 
     _db_schema = V.Schema({
