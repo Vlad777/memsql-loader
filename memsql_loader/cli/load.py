@@ -600,4 +600,5 @@ Invalid command line options for load:
         self.process_options()
 
         self.validate_conditions()
+        self.logger.debug("Produced spec:\n%s", json.pformat(self.job.spec))
         self.queue_job()
