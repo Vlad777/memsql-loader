@@ -146,7 +146,7 @@ class RunLoad(Command):
             bootstrap.bootstrap()
 
     @staticmethod
-    def pre_process_options(self, options, logger):
+    def pre_process_options(s, options, logger):
         # Pre-process some options before sending it to the schema builder
         #   1) columns need to be parsed into a list
         #   2) duplicate_key_method needs to be fixed
@@ -163,7 +163,7 @@ class RunLoad(Command):
             #options.columns = [x.strip() for x in options.columns.split(",")]
             #TODO read in the first header line instead
             #header_columns = options.columns
-            with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
+            with pool.get_connection(database='INFORMATION_SCHEMA', **s.job.spec.connection) as conn:
                 options.columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table)
                 if not options.columns:
                     self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
