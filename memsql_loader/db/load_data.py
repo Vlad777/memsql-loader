@@ -82,7 +82,23 @@ class LoadDataStmt(object):
 
     def _generate_columns(self, query_params):
         if len(self.job.spec.options.columns) > 0:
-            columns = self.job.spec.options.columns
+            if self.job.spec.options.dynamic_columns:
+                #header_columns = read first line from self.source_file.
+                #dynamic column requires header which is read and thus does not need to be "ignored"
+                with open(self.source_file, 'r') as f:
+                    header_columns = f.readline().split(",")
+                
+                #replace columns of header_columns that are not in options.columns with @
+                #self.job.spec.options.columns are from the table schema and must match file header
+                columns = list()
+                for column in header_columns: 
+                    if column in self.job.spec.options.columns:
+                        columns.append(column) 
+                    else:
+                        columns.append("@")
+            else:
+                columns = self.job.spec.options.columns
+
             return "(%s)" % ', '.join(("%s" if column == "@" else "`%s`") % column for column in columns)
 
     def _generate_file_id(self, query_params):
