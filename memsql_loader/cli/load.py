@@ -146,7 +146,7 @@ class RunLoad(Command):
             bootstrap.bootstrap()
 
     @staticmethod
-    def pre_process_options(options, logger):
+    def pre_process_options(self, options, logger):
         # Pre-process some options before sending it to the schema builder
         #   1) columns need to be parsed into a list
         #   2) duplicate_key_method needs to be fixed
@@ -164,7 +164,7 @@ class RunLoad(Command):
             #TODO read in the first header line instead
             #header_columns = options.columns
             with pool.get_connection(database='INFORMATION_SCHEMA', **self.job.spec.connection) as conn:
-                options.columns = db_utils.get_table_columns(conn, **self.job.spec.target.database, **self.job.spec.target.table)
+                options.columns = db_utils.get_table_columns(conn, self.job.spec.target.database, self.job.spec.target.table)
                 if not options.columns:
                     self.logger.error("The table specified (%s) must exist", self.job.spec.target.table)
                     sys.exit(1)
@@ -207,7 +207,7 @@ class RunLoad(Command):
         else:
             base_spec = {}
 
-        self.pre_process_options(self.options, self.logger)
+        self.pre_process_options(self, self.options, self.logger)
 
         if self.options.password == _PasswordNotSpecified:
             password = getpass.getpass('Enter password: ')
